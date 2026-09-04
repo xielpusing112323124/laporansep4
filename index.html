@@ -596,7 +596,7 @@
       <span class="section-num">01 / AWAL MULA MASALAH</span>
       <h2>Kenapa Web Sering Timeout & Database Tiba-Tiba Mati?</h2>
       <p class="text-body">
-        Awalnya keluhannya simpel: <strong>website PBN kadang-kadang suka timeout, muter lama, terus gak bisa dibuka</strong>. Pas kita intip log bagian dalam server pake perintah <code>dmesg -T</code>, ternyata ketahuan biang keroknya: kernel Linux secara berkala panik kehabisan RAM, lalu mengeksekusi aksi "pembunuhan massal" (*Out Of Memory Killer*):
+        Awalnya keluhannya simpel: <strong>website PBN kadang-kadang suka timeout, muter lama, terus gak bisa dibuka</strong>. Pas aku intip log bagian dalam server pake perintah <code>dmesg -T</code>, ternyata ketahuan biang keroknya: kernel Linux secara berkala panik kehabisan RAM, lalu mengeksekusi aksi "pembunuhan massal" (*Out Of Memory Killer*):
       </p>
 
       <div class="cli-box">
@@ -697,7 +697,7 @@
           <div class="photo-wrap" onclick="openLightbox('images/03_cloudlinux_644_users_hitting_limits.png')">
             <img src="images/03_cloudlinux_644_users_hitting_limits.png" alt="644 Users Hitting Limits">
           </div>
-          <div class="photo-caption">Angka lingkaran oranye: 644 dari 978 website mentok limit barengan.</div>
+          <div class="photo-caption">Angka lingkaran oren: 644 dari 978 website mentok limit barengan.</div>
         </div>
 
         <div class="photo-card">
@@ -728,13 +728,13 @@
       <span class="section-num">03 / LANGKAH PERBAIKAN</span>
       <h2>Beresin Satu Per Satu Sesuai Spek Asli Server</h2>
       <p class="text-body">
-        Kita gak cuma tambal sulam, tapi settingan server langsung kita sesuaikan sama tenaga asli prosesor AMD EPYC 32-thread dan RAM 128 GB:
+        settingan server langsung aku sesuaikan sama spek asli prosesor AMD EPYC 32-thread dan RAM 128 GB:
       </p>
 
       <!-- Step 1 -->
       <p class="text-body">
         <strong>1. Buang Beban Gak Guna & Bebasin 55 GB RAM</strong><br>
-        Server PBN kan isinya cuma blog WordPress buat backlink/artikel, ngapain pasang antivirus email kantor (ClamAV) sama fitur sinkronisasi kalender/file (cPanel DAV)? Begitu kedua service ini dimatikan lewat Service Manager, RAM server langsung lega dari yang tadinya sisa 41 GB melompat jadi <strong>93 GB BEBAS</strong>!
+        Server PBN kan isinya cuma blog WordPress buat backlink/artikel, ngapain pasang antivirus email kantor (ClamAV) sama fitur sinkronisasi kalender/file (cPanel DAV)? Begitu kedua service ini dimatikan lewat Service Manager, RAM server langsung lega dari yang tadinya sisa 41 GB (lupa ss before nya) melompat jadi <strong>93 GB BEBAS</strong>
       </p>
 
       <div class="photo-grid-2">
@@ -758,7 +758,7 @@
       <!-- Step 2 -->
       <p class="text-body" style="margin-top: 30px;">
         <strong>2. Buka Kunci Kecepatan Disk Samsung NVMe di CloudLinux</strong><br>
-        Batas baca/tulis disk per akun kita naikkan dari 1 MB/s jadi <strong>25–50 MB/s</strong> dan IOPS ke <strong>2048–4096</strong> lewat perintah <code>lvectl</code>. Sekarang WordPress bisa baca tema dan plugin secepat kilat:
+        Batas baca/tulis disk per akun aku naikkan dari 1 MB/s jadi <strong>25–50 MB/s</strong> dan IOPS ke <strong>2048–4096</strong> lewat perintah <code>lvectl</code>. Sekarang WordPress bisa baca tema dan plugin secepat kilat:
       </p>
 
       <div class="cli-box">
@@ -788,7 +788,7 @@
       <!-- Step 3 -->
       <p class="text-body" style="margin-top: 30px;">
         <strong>3. Buka Pintu Masuk Apache Menjadi 750 Orang</strong><br>
-        Ini kunci utama yang bikin website langsung bisa dibuka lagi tanpa nungguin timeout: batas workers Apache kita dongkrak dari 50 jadi <strong>750 workers</strong> lewat menu WHM Konfigurasi Global, dan batas timeout gantung diturunkan jadi <strong>30 detik</strong> biar koneksi yang udah ditinggal kabur pengunjung langsung diputus:
+        Ini kunci utama yang bikin website langsung bisa dibuka lagi tanpa nungguin timeout: batas workers Apache aku dongkrak dari 50 jadi <strong>750 workers</strong> lewat menu WHM Konfigurasi Global, dan batas timeout gantung diturunkan jadi <strong>30 detik</strong> biar koneksi yang udah ditinggal kabur pengunjung langsung diputus:
       </p>
 
       <div class="photo-grid-2">
@@ -812,7 +812,7 @@
       <!-- Step 4 -->
       <p class="text-body" style="margin-top: 30px;">
         <strong>4. Bikin Database Kebal OOM Killer & Kasih RAM 32 GB</strong><br>
-        Biar database gak pernah dibunuh lagi sama Linux pas RAM naik mendadak, kita kasih imunisasi pake override systemd <code>OOMScoreAdjust=-1000</code>. Plus, kita kasih jatah RAM raksasa 32 GB buat nampung seluruh data website di dalam memori:
+        Biar database gak pernah dibunuh lagi sama Linux pas RAM naik mendadak, aku kasih imunisasi pake override systemd <code>OOMScoreAdjust=-1000</code>. Plus, aku kasih jatah RAM raksasa 32 GB buat nampung seluruh data website di dalam memori:
       </p>
 
       <div class="cli-box">
