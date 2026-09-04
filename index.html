@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catatan Optimasi Server PBN — 4 September 2026</title>
+  
+  <!-- Modern Editorial & Monospace Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Inter:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #000000;
+      --surface: #0A0A0A;
+      --surface-2: #121212;
+      --surface-hover: #181818;
+      --border: #222222;
+      --border-light: #333333;
+      --border-focus: #FFFFFF;
+      
+      --text: #FFFFFF;
+      --text-secondary: #A0A0A0;
+      --text-muted: #555555;
+      
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background-color: var(--bg);
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      padding-bottom: 120px;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 60px 24px;
+    }
+
+    /* Top Meta Strip */
+    .meta-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
+      margin-bottom: 50px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .meta-strip span.active {
+      color: var(--text);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .meta-strip span.active::before {
+      content: '';
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      background: #FFF;
+      border-radius: 50%;
+    }
+
+    /* Header */
+    header {
+      margin-bottom: 60px;
+    }
+
+    .doc-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    h1 {
+      font-size: 38px;
+      font-weight: 600;
+      letter-spacing: -0.04em;
+      line-height: 1.2;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    .lead-desc {
+      font-size: 16px;
+      font-weight: 300;
+      color: var(--text-secondary);
+      max-width: 780px;
+      line-height: 1.7;
+    }
+
+    /* Hardware Grid */
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin-bottom: 60px;
+    }
+
+    @media (max-width: 800px) {
+      .spec-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 480px) {
+      .spec-grid { grid-template-columns: 1fr; }
+    }
+
+    .spec-item {
+      background: var(--bg);
+      padding: 24px 20px;
+    }
+
+    .spec-kpi-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .spec-kpi-val {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+
+    .spec-kpi-sub {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    /* Comparison Delta Box */
+    .delta-matrix {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      padding: 36px 30px;
+      margin-bottom: 70px;
+    }
+
+    .section-header-mono {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .delta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 24px;
+    }
+
+    .delta-card {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .delta-param {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .delta-val-wrap {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      font-family: var(--font-mono);
+    }
+
+    .delta-val-before {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-decoration: line-through;
+    }
+
+    .delta-val-after {
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.03em;
+    }
+
+    .delta-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 3px 6px;
+      border: 1px solid var(--border-light);
+      margin-top: 8px;
+      color: var(--text);
+      width: fit-content;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* Content Article */
+    article.section {
+      margin-bottom: 70px;
+      border-top: 1px solid var(--border);
+      padding-top: 40px;
+    }
+
+    .section-num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    h2 {
+      font-size: 24px;
+      font-weight: 500;
+      letter-spacing: -0.03em;
+      margin-bottom: 18px;
+      color: var(--text);
+    }
+
+    p.text-body {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.75;
+      margin-bottom: 24px;
+      font-weight: 300;
+    }
+
+    p.text-body strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* Code Terminal */
+    .cli-box {
+      background: #000;
+      border: 1px solid var(--border);
+      margin: 24px 0;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      overflow: hidden;
+    }
+
+    .cli-header {
+      padding: 10px 16px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-muted);
+      font-size: 11px;
+      letter-spacing: 0.05em;
+    }
+
+    .cli-content {
+      padding: 18px;
+      overflow-x: auto;
+      color: #CCC;
+      line-height: 1.65;
+    }
+
+    .cli-content .dim { color: #555; }
+    .cli-content .white { color: #FFF; font-weight: 500; }
+
+    /* Photo Cards */
+    .photo-card {
+      margin: 28px 0;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      transition: border-color 0.2s;
+    }
+
+    .photo-card:hover {
+      border-color: var(--border-light);
+    }
+
+    .photo-bar {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .photo-wrap {
+      padding: 8px;
+      background: #000;
+      text-align: center;
+      cursor: zoom-in;
+    }
+
+    .photo-wrap img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+      border: 1px solid #1A1A1A;
+      opacity: 0.95;
+      transition: opacity 0.2s;
+    }
+
+    .photo-wrap:hover img {
+      opacity: 1;
+    }
+
+    .photo-caption {
+      padding: 12px 16px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      border-top: 1px solid var(--border);
+      font-weight: 300;
+      line-height: 1.6;
+    }
+
+    .photo-caption strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .photo-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 28px 0;
+    }
+
+    @media (max-width: 768px) {
+      .photo-grid-2 { grid-template-columns: 1fr; }
+    }
+
+    .photo-grid-2 .photo-card {
+      margin: 0;
+    }
+
+    /* Table */
+    .matrix-table-wrap {
+      border: 1px solid var(--border);
+      margin: 30px 0;
+      background: var(--surface);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    th {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface-2);
+      font-weight: 500;
+    }
+
+    td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-secondary);
+      font-weight: 300;
+    }
+
+    td.mono {
+      font-family: var(--font-mono);
+    }
+
+    td.white {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Lightbox */
+    .lightbox {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.94);
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .lightbox.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .lightbox img {
+      max-width: 92%;
+      max-height: 92%;
+      border: 1px solid #333;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 24px;
+      right: 32px;
+      color: #FFF;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      cursor: pointer;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      border: 1px solid var(--border-light);
+    }
+
+    .lightbox-close:hover {
+      background: #FFF;
+      color: #000;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding-top: 30px;
+      margin-top: 80px;
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Lightbox Modal -->
+  <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+    <div class="lightbox-close">TUTUP [ESC]</div>
+    <img id="lightbox-img" src="" alt="Zoom Preview">
+  </div>
+
+  <div class="container">
+    
+    <!-- Meta Strip -->
+    <div class="meta-strip">
+      <span class="active">SERVER NORMAL & LANCAR</span>
+      <span>NODE: ns5034480.ip-15-235-226.net</span>
+      <span>4 SEPTEMBER 2026</span>
+    </div>
+
+    <!-- Header -->
+    <header>
+      <span class="doc-label">CATATAN BEDAH SERVER · PBN NETWORK</span>
+      <h1>Kenapa Kemarin Sering Timeout, dan Gimana Cara Ngeberesinnya</h1>
+      <p class="lead-desc">
+        Rangkuman komplit dari xiel: ngebongkar kenapa server PBN kemarin suka macet, database tiba-tiba mati sendiri, dan gimana cara aku ngeberesin biar kencang nampung hampir 1.000 pbn.
+      </p>
+    </header>
+
+    <!-- Hardware Spec Grid -->
+    <div class="spec-grid">
+      <div class="spec-item">
+        <div class="spec-kpi-label">Otak Prosesor</div>
+        <div class="spec-kpi-val">AMD EPYC™ 4584PX</div>
+        <div class="spec-kpi-sub">16 Core / 32 Thread (Zen 4)</div>
+      </div>
+      <div class="spec-item">
+        <div class="spec-kpi-label">Kapasitas RAM</div>
+        <div class="spec-kpi-val">128 GB DDR5</div>
+        <div class="spec-kpi-sub">93 GB Sisa Bebas & Lega</div>
+      </div>
+      <div class="spec-item">
+        <div class="spec-kpi-label">Storage Penyimpanan</div>
+        <div class="spec-kpi-val">2x Samsung PM9A3</div>
+        <div class="spec-kpi-sub">NVMe Enterprise (6.8 GB/s)</div>
+      </div>
+      <div class="spec-item">
+        <div class="spec-kpi-label">Sistem Operasi</div>
+        <div class="spec-kpi-val">CloudLinux 9.8</div>
+        <div class="spec-kpi-sub">LVE Manager + cPanel v136</div>
+      </div>
+    </div>
+
+    <!-- Delta Matrix -->
+    <div class="delta-matrix">
+      <div class="section-header-mono">
+        <span>PERBANDINGAN SEBELUM VS SESUDAH</span>
+        <span>ANGKA LAMA / ANGKA BARU</span>
+      </div>
+      <div class="delta-grid">
+        <div class="delta-card">
+          <div class="delta-param">Max Request Workers (Apache)</div>
+          <div class="delta-val-wrap">
+            <span class="delta-val-before">50</span>
+            <span class="delta-val-after">750</span>
+          </div>
+          <div class="delta-badge">15x Lebih Banyak</div>
+        </div>
+
+        <div class="delta-card">
+          <div class="delta-param">max_connections (MariaDB)</div>
+          <div class="delta-val-wrap">
+            <span class="delta-val-before">151</span>
+            <span class="delta-val-after">600</span>
+          </div>
+          <div class="delta-badge">4x Lebih Luas</div>
+        </div>
+
+        <div class="delta-card">
+          <div class="delta-param">innodb_buffer_pool_size</div>
+          <div class="delta-val-wrap">
+            <span class="delta-val-before">16G</span>
+            <span class="delta-val-after">32G</span>
+          </div>
+          <div class="delta-badge">Langsung di Memori</div>
+        </div>
+
+        <div class="delta-card">
+          <div class="delta-param">IO Limit (CloudLinux Packages)</div>
+          <div class="delta-val-wrap">
+            <span class="delta-val-before">1 MB/s</span>
+            <span class="delta-val-after">50 MB/s</span>
+          </div>
+          <div class="delta-badge">NVMe Gak Dicekik</div>
+        </div>
+
+        <div class="delta-card">
+          <div class="delta-param">Available RAM (Service Manager)</div>
+          <div class="delta-val-wrap">
+            <span class="delta-val-before">41 GB</span>
+            <span class="delta-val-after">93 GB</span>
+          </div>
+          <div class="delta-badge">Hemat 55 GB RAM</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 01 -->
+    <article class="section">
+      <span class="section-num">01 / AWAL MULA MASALAH</span>
+      <h2>Kenapa Web Sering Timeout & Database Tiba-Tiba Mati?</h2>
+      <p class="text-body">
+        Awalnya keluhannya simpel: <strong>website PBN kadang-kadang suka timeout, muter lama, terus gak bisa dibuka</strong>. Pas kita intip log bagian dalam server pake perintah <code>dmesg -T</code>, ternyata ketahuan biang keroknya: kernel Linux secara berkala panik kehabisan RAM, lalu mengeksekusi aksi "pembunuhan massal" (*Out Of Memory Killer*):
+      </p>
+
+      <div class="cli-box">
+        <div class="cli-header">
+          <span>LOG DMESG KERNEL LINUX</span>
+          <span>BUKTI PEMBUNUHAN DATABASE</span>
+        </div>
+        <div class="cli-content">
+[Thu Sep  3 15:33:39 2026] <span class="white">Out of memory: Killed process 8130 (mariadbd)</span> ...
+[Thu Sep  3 15:35:12 2026] Out of memory: Killed process 2094 (clamd) ...
+[Thu Sep  3 18:32:07 2026] <span class="white">Out of memory: Killed process 315783 (mariadbd)</span> ...
+[Fri Sep  4 11:36:32 2026] <span class="white">Out of memory: Killed process 955576 (mariadbd)</span> ...
+[Fri Sep  4 11:37:12 2026] <span class="white">Out of memory: Killed process 2253131 (mariadbd)</span> ...
+[Fri Sep  4 11:39:20 2026] <span class="white">Out of memory: Killed process 2252632 (httpd)</span> ...
+        </div>
+      </div>
+
+      <p class="text-body">
+        Lihat baris di atas: proses <strong>mariadbd (database MariaDB) dibunuh berkali-kali</strong>. Begitu database dibunuh paksa, ya otomatis semua website WordPress di server rontok barengan. Beberapa saat kemudian sistem nge-restart MySQL lagi, makanya web sempat bisa kebuka sebentar, lalu nanti kalau RAM penuh lagi bakal mati lagi (kumat-kumatan).
+      </p>
+
+      <div class="photo-card">
+        <div class="photo-bar">
+          <span>[FIG. 01] KONDISI AWAL SERVER (PERINTAH TOP)</span>
+          <span>KLIK UNTUK PERBESAR</span>
+        </div>
+        <div class="photo-wrap" onclick="openLightbox('images/01_top_kondisi_awal_overload.png')">
+          <img src="images/01_top_kondisi_awal_overload.png" alt="Kondisi Awal Overload">
+        </div>
+        <div class="photo-caption">
+          <strong>Kondisi pas lagi megap-megap:</strong> Ada 949 proses numpuk di server, Netdata makan CPU sampai 123.5%, dan RAM kesedot 86.7 GB gara-gara ratusan proses PHP jalan barengan tapi gak kunjung selesai.
+        </div>
+      </div>
+
+      <p class="text-body" style="margin-top: 24px;">
+        Dan setiap kali database MySQL mati dibunuh oleh kernel Linux tadi, pengunjung atau bot yang lagi buka website PBN langsung disambut ini:
+      </p>
+
+      <div class="photo-card">
+        <div class="photo-bar">
+          <span>[FIG. 02] KORBAN DATABASE MATI (ERROR ESTABLISHING DATABASE CONNECTION)</span>
+          <span>KLIK UNTUK PERBESAR</span>
+        </div>
+        <div class="photo-wrap" onclick="openLightbox('images/01b_error_establishing_database_connection.png')">
+          <img src="images/01b_error_establishing_database_connection.png" alt="Error Establishing a Database Connection">
+        </div>
+        <div class="photo-caption">
+          <strong>Layar yang sering muncul kemarin:</strong> Begitu MariaDB dibunuh paksa oleh sistem OOM Linux, WordPress langsung gagal nyambung ke database dan menampilkan pesan error ini serempak di seluruh domain PBN.
+        </div>
+      </div>
+    </article>
+
+    <!-- SECTION 02 -->
+    <article class="section">
+      <span class="section-num">02 / PEMBONGKARAN MASALAH</span>
+      <h2>4 Biang Kerok Utama yang Bikin Server Macet</h2>
+      <p class="text-body">
+        Pas aku telusuri lebih dalam, masalahnya bukan karena servernya jelek (orang sever ini bisa nampung banyak banget domain lagi kalo mau). Masalahnya ada di <strong>settingan bawaan cPanel dan CloudLinux yang kaga pas</strong>, ini dia 4 biang keroknya:
+      </p>
+
+      <div class="matrix-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Biang Kerok</th>
+              <th>Settingan Lama</th>
+              <th>Kenapa Ini Bikin Masalah?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="white">Kecepatan Disk Dicekik</td>
+              <td class="mono">1 MB/s per akun</td>
+              <td>Ibarat punya SSD Samsung NVMe Gen4 yang larinya 6.800 MB/s, tapi tiap akun cuma boleh baca 1 MB/s. WordPress butuh baca puluhan file plugin, karena dicekik jadi lama banget. Akhirnya proses PHP gak kelar-kelar dan ngendap berjam-jam di RAM.</td>
+            </tr>
+            <tr>
+              <td class="white">Pintu Masuk Apache Sempit</td>
+              <td class="mono">MaxRequestWorkers: 50</td>
+              <td>Punya hampir 1.000 website, tapi pintu Apache cuma muat 50 orang sekaligus! Begitu 50 orang masuk, antrean langsung meluber. Pas antrean penuh (512), pengunjung baru langsung ditendang keluar (ERR_TIMED_OUT).</td>
+            </tr>
+            <tr>
+              <td class="white">644 Web Mentok Limit</td>
+              <td class="mono">644 / 978 Website</td>
+              <td>Gara-gara disknya dicekik, 65% website langsung jebol batas limit CloudLinux. Fitur MySQL Governor otomatis ngambek dan nyekik kueri database (mode abusers), bikin antrean web makin macet total.</td>
+            </tr>
+            <tr>
+              <td class="white">Koneksi Database Minim</td>
+              <td class="mono">max_connections: 151</td>
+              <td>Ini setelan default buat VPS murah seharga 50 ribuan. Dipasang di server 1.000 web, jelas pas ada 152 koneksi barengan databasenya langsung nolak kueri.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="photo-grid-2">
+        <div class="photo-card">
+          <div class="photo-bar"><span>[FIG. 03] CLOUDLINUX DASHBOARD</span></div>
+          <div class="photo-wrap" onclick="openLightbox('images/03_cloudlinux_644_users_hitting_limits.png')">
+            <img src="images/03_cloudlinux_644_users_hitting_limits.png" alt="644 Users Hitting Limits">
+          </div>
+          <div class="photo-caption">Angka lingkaran oranye: 644 dari 978 website mentok limit barengan.</div>
+        </div>
+
+        <div class="photo-card">
+          <div class="photo-bar"><span>[FIG. 04] STATISTIK LIMIT CEKIKAN</span></div>
+          <div class="photo-wrap" onclick="openLightbox('images/04_statistics_io_1mb_speed_1500.png')">
+            <img src="images/04_statistics_io_1mb_speed_1500.png" alt="IO 1MB/s Cap">
+          </div>
+          <div class="photo-caption">Buktinya: kolom IO dipatok cuma 1 MB/s dan CPU anehnya diset 1500%.</div>
+        </div>
+      </div>
+
+      <div class="photo-card">
+        <div class="photo-bar">
+          <span>[FIG. 05] PENYEBAB ERR_TIMED_OUT DI BROWSER</span>
+          <span>ANTREAN 443 MELUBER</span>
+        </div>
+        <div class="photo-wrap" onclick="openLightbox('images/09_symptom_err_timed_out.png')">
+          <img src="images/09_symptom_err_timed_out.png" alt="ERR_TIMED_OUT">
+        </div>
+        <div class="photo-caption">
+          <strong>Kenapa muncul tampilan ini kemarin?</strong> Pas workers Apache cuma 50, antrean port 443 langsung mentok di angka 512/511. Begitu antrean penuh, Linux langsung ngebuang semua koneksi HTTPS baru yang masuk.
+        </div>
+      </div>
+    </article>
+
+    <!-- SECTION 03 -->
+    <article class="section">
+      <span class="section-num">03 / LANGKAH PERBAIKAN</span>
+      <h2>Beresin Satu Per Satu Sesuai Spek Asli Server</h2>
+      <p class="text-body">
+        Kita gak cuma tambal sulam, tapi settingan server langsung kita sesuaikan sama tenaga asli prosesor AMD EPYC 32-thread dan RAM 128 GB:
+      </p>
+
+      <!-- Step 1 -->
+      <p class="text-body">
+        <strong>1. Buang Beban Gak Guna & Bebasin 55 GB RAM</strong><br>
+        Server PBN kan isinya cuma blog WordPress buat backlink/artikel, ngapain pasang antivirus email kantor (ClamAV) sama fitur sinkronisasi kalender/file (cPanel DAV)? Begitu kedua service ini dimatikan lewat Service Manager, RAM server langsung lega dari yang tadinya sisa 41 GB melompat jadi <strong>93 GB BEBAS</strong>!
+      </p>
+
+      <div class="photo-grid-2">
+        <div class="photo-card">
+          <div class="photo-bar"><span>[FIG. 06] MATIKAN CLAMAV & DAV</span></div>
+          <div class="photo-wrap" onclick="openLightbox('images/07_service_manager_matikan_clamav_dav.png')">
+            <img src="images/07_service_manager_matikan_clamav_dav.png" alt="Disable ClamAV and DAV">
+          </div>
+          <div class="photo-caption">Hilangkan centang di ClamAV dan cPanel DAV.</div>
+        </div>
+
+        <div class="photo-card">
+          <div class="photo-bar"><span>[FIG. 07] HASIL RAM LEGA (FREE -H)</span></div>
+          <div class="photo-wrap" onclick="openLightbox('images/08_ram_berhasil_bebas_93gb_available.png')">
+            <img src="images/08_ram_berhasil_bebas_93gb_available.png" alt="RAM 93GB Free">
+          </div>
+          <div class="photo-caption">RAM yang nganggur langsung melompat jadi 93 GB lega!</div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <p class="text-body" style="margin-top: 30px;">
+        <strong>2. Buka Kunci Kecepatan Disk Samsung NVMe di CloudLinux</strong><br>
+        Batas baca/tulis disk per akun kita naikkan dari 1 MB/s jadi <strong>25–50 MB/s</strong> dan IOPS ke <strong>2048–4096</strong> lewat perintah <code>lvectl</code>. Sekarang WordPress bisa baca tema dan plugin secepat kilat:
+      </p>
+
+      <div class="cli-box">
+        <div class="cli-header"><span>PERINTAH TERMINAL SSH</span><span>CLOUDLINUX LVECTL</span></div>
+        <div class="cli-content">
+<span class="dim"># Buka batas default ke 50 MB/s dan 4096 IOPS</span>
+<span class="white">lvectl set 0 --speed=100% --pmem=1024M --io=51200 --iops=4096 --maxEntryProcs=25 --nproc=150</span>
+
+<span class="dim"># Update juga paket DEDICATED (CPU dinormalkan ke 100% biar gak monopoli)</span>
+<span class="white">lvectl package-set DEDICATED --speed=100% --pmem=1024M --io=51200 --iops=4096 --maxEntryProcs=25 --nproc=150</span>
+
+<span class="dim"># Terapkan langsung serempak ke semua ~978 akun</span>
+<span class="white">lvectl apply all</span>
+        </div>
+      </div>
+
+      <div class="photo-card">
+        <div class="photo-bar"><span>[FIG. 08] SETELAN PAKET BERHASIL DIUBAH</span></div>
+        <div class="photo-wrap" onclick="openLightbox('images/06_packages_sukses_diubah_ke_25mb.png')">
+          <img src="images/06_packages_sukses_diubah_ke_25mb.png" alt="Packages 25MB">
+        </div>
+        <div class="photo-caption">
+          Daftar paket di CloudLinux sudah resmi berubah, disk gak lagi dicekik di 1 MB/s.
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <p class="text-body" style="margin-top: 30px;">
+        <strong>3. Buka Pintu Masuk Apache Menjadi 750 Orang</strong><br>
+        Ini kunci utama yang bikin website langsung bisa dibuka lagi tanpa nungguin timeout: batas workers Apache kita dongkrak dari 50 jadi <strong>750 workers</strong> lewat menu WHM Konfigurasi Global, dan batas timeout gantung diturunkan jadi <strong>30 detik</strong> biar koneksi yang udah ditinggal kabur pengunjung langsung diputus:
+      </p>
+
+      <div class="photo-grid-2">
+        <div class="photo-card">
+          <div class="photo-bar"><span>[FIG. 09] KONFIGURASI GLOBAL WHM</span></div>
+          <div class="photo-wrap" onclick="openLightbox('images/10_whm_apache_maxclients_750.png')">
+            <img src="images/10_whm_apache_maxclients_750.png" alt="MaxClients 750">
+          </div>
+          <div class="photo-caption">Max Request Workers diubah ke 750 & Timeout 30 detik.</div>
+        </div>
+
+        <div class="photo-card">
+          <div class="photo-bar"><span>[FIG. 10] REBUILD SELESAI</span></div>
+          <div class="photo-wrap" onclick="openLightbox('images/11_apache_rebuild_selesai.png')">
+            <img src="images/11_apache_rebuild_selesai.png" alt="Rebuild Apache Finished">
+          </div>
+          <div class="photo-caption">Apache sukses rebuild dan restart tanpa ada error.</div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <p class="text-body" style="margin-top: 30px;">
+        <strong>4. Bikin Database Kebal OOM Killer & Kasih RAM 32 GB</strong><br>
+        Biar database gak pernah dibunuh lagi sama Linux pas RAM naik mendadak, kita kasih imunisasi pake override systemd <code>OOMScoreAdjust=-1000</code>. Plus, kita kasih jatah RAM raksasa 32 GB buat nampung seluruh data website di dalam memori:
+      </p>
+
+      <div class="cli-box">
+        <div class="cli-header"><span>/etc/my.cnf.d/monster_tuning.cnf</span><span>SETELAN DATABASE MARIADB</span></div>
+        <div class="cli-content">
+[mysqld]
+<span class="white">max_connections = 600</span>             <span class="dim"># Naik 4x lipat dari cuma 151</span>
+<span class="white">innodb_buffer_pool_size = 32G</span>     <span class="dim"># Semua database PBN dimuat langsung di RAM</span>
+<span class="white">innodb_buffer_pool_instances = 8</span>
+<span class="white">table_open_cache = 4000</span>
+<span class="white">open_files_limit = 65535</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- SECTION 04 -->
+    <article class="section">
+      <span class="section-num">04 / HASIL AKHIR</span>
+      <h2>Tabel Perbandingan: Sebelum vs Sesudah</h2>
+
+      <div class="matrix-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Parameter di WHM / Server</th>
+              <th>Sebelumnya</th>
+              <th>Sekarang</th>
+              <th>Hasilnya di Server</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="white">
+                Max Request Workers (Apache)
+                <div style="font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 3px;">WHM &gt; Apache Configuration &gt; Global Configuration</div>
+              </td>
+              <td class="mono">50</td>
+              <td class="mono white">750</td>
+              <td>Muat 15x lipat lebih banyak pengunjung serentak tanpa antre.</td>
+            </tr>
+            <tr>
+              <td class="white">
+                Antrean Port 443 (Listen Backlog)
+                <div style="font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 3px;">Linux Kernel &gt; net.core.somaxconn</div>
+              </td>
+              <td class="mono">512 (Meluap Penuh)</td>
+              <td class="mono white">0 (Plong Lancar)</td>
+              <td>Gak ada lagi koneksi HTTPS yang dibuang/ditolak sama Linux.</td>
+            </tr>
+            <tr>
+              <td class="white">
+                max_connections (MariaDB)
+                <div style="font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 3px;">MariaDB &gt; /etc/my.cnf.d/monster_tuning.cnf</div>
+              </td>
+              <td class="mono">151</td>
+              <td class="mono white">600</td>
+              <td>Kapasitas kueri naik 4x lipat, gak ada lagi error database.</td>
+            </tr>
+            <tr>
+              <td class="white">
+                innodb_buffer_pool_size (MariaDB)
+                <div style="font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 3px;">MariaDB &gt; /etc/my.cnf.d/monster_tuning.cnf</div>
+              </td>
+              <td class="mono">16 GB</td>
+              <td class="mono white">32 GB</td>
+              <td>Semua kueri WordPress dibaca instan dari RAM tanpa nunggu disk.</td>
+            </tr>
+            <tr>
+              <td class="white">
+                IO Limit &amp; IOPS (CloudLinux)
+                <div style="font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 3px;">WHM &gt; CloudLinux LVE Manager &gt; Packages</div>
+              </td>
+              <td class="mono">1 MB/s / 1024 IOPS</td>
+              <td class="mono white">50 MB/s / 4096 IOPS</td>
+              <td>Potensi penuh SSD Samsung NVMe Gen4 akhirnya keluar.</td>
+            </tr>
+            <tr>
+              <td class="white">
+                Service Manager (ClamAV &amp; cPanel DAV)
+                <div style="font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 3px;">WHM &gt; Service Configuration &gt; Service Manager</div>
+              </td>
+              <td class="mono">Enabled (RAM Sisa 41G)</td>
+              <td class="mono white">Disabled (RAM Sisa 93G)</td>
+              <td>Hemat lebih dari 55 GB RAM setelah buang ClamAV &amp; WebDisk.</td>
+            </tr>
+            <tr>
+              <td class="white">
+                OOMScoreAdjust (Proteksi MariaDB)
+                <div style="font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 3px;">Systemd Service &gt; mariadb.service.d/override.conf</div>
+              </td>
+              <td class="mono">0 (Gampang Dibunuh)</td>
+              <td class="mono white">-1000 (Kebal OOM)</td>
+              <td>Database dijamin gak bakal mati mendadak lagi saat RAM naik.</td>
+            </tr>
+            <tr>
+              <td class="white">
+                Status Respon Website
+                <div style="font-size: 10px; color: var(--text-muted); font-family: var(--font-mono); margin-top: 3px;">Akses Browser &amp; Curl HTTP/HTTPS</div>
+              </td>
+              <td class="mono">ERR_TIMED_OUT</td>
+              <td class="mono white">HTTP 200 (~0.6s)</td>
+              <td>Semua website normal, stabil, dan kencang!</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <!-- Footer -->
+    <footer>
+      <div>SERVER: ns5034480.ip-15-235-226.net</div>
+      <div>ARSIP DOKUMENTASI SERVER PBN — 2026</div>
+    </footer>
+
+  </div>
+
+  <!-- Lightbox Script -->
+  <script>
+    function openLightbox(src) {
+      const lb = document.getElementById('lightbox');
+      const img = document.getElementById('lightbox-img');
+      img.src = src;
+      lb.classList.add('active');
+    }
+
+    function closeLightbox() {
+      const lb = document.getElementById('lightbox');
+      lb.classList.remove('active');
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeLightbox();
+      }
+    });
+  </script>
+</body>
+</html>
